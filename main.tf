@@ -1,6 +1,5 @@
-resource "azurerm_resource_group" "main" {
-  location = "${var.location}"
-  name = "${var.prefix}-rg"
+data "azurerm_resource_group" "main" {
+  name = "${var.resource_group}"
 }
 
 data "azurerm_subnet" "main" {
@@ -15,9 +14,9 @@ resource "azurerm_network_interface" "main" {
     private_ip_address_allocation = "dynamic"
     subnet_id = "${data.azurerm_subnet.main.id}"
   }
-  location = "${azurerm_resource_group.main.location}"
+  location = "${data.azurerm_resource_group.main.location}"
   name = "${var.prefix}-nic"
-  resource_group_name = "${azurerm_resource_group.main.name}"
+  resource_group_name = "${data.azurerm_resource_group.main.name}"
 }
 
 resource "random_string" "password" {
@@ -25,11 +24,11 @@ resource "random_string" "password" {
 }
 
 resource "azurerm_virtual_machine" "main" {
-  location = "${azurerm_resource_group.main.location}"
+  location = "${data.azurerm_resource_group.main.location}"
   name = "${var.prefix}"
   network_interface_ids = [
     "${azurerm_network_interface.main.id}"]
-  resource_group_name = "${azurerm_resource_group.main.name}"
+  resource_group_name = "${data.azurerm_resource_group.main.name}"
 
   delete_os_disk_on_termination = true
   delete_data_disks_on_termination = true

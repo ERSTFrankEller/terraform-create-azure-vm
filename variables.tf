@@ -14,10 +14,6 @@ variable admin_username {
   default = "csm"
 }
 
-variable admin_password {
-  default = "Password1234"
-}
-
 variable vm_environment_tag {
   default = "csm-test-vm"
 }

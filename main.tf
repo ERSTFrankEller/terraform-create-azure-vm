@@ -10,12 +10,19 @@ data "azurerm_subnet" "main" {
 
 resource "azurerm_network_interface" "main" {
   ip_configuration {
-    name = "ipconfig1"
+    name = "ipconfig1-${terraform.workspace}"
     private_ip_address_allocation = "dynamic"
     subnet_id = "${data.azurerm_subnet.main.id}"
   }
   location = "${data.azurerm_resource_group.main.location}"
-  name = "${var.prefix}-nic"
+  name = "${var.prefix}-${terraform.workspace}"
+  resource_group_name = "${data.azurerm_resource_group.main.name}"
+  network_security_group_id = "${azurerm_network_security_group.main.id}"
+}
+
+resource "azurerm_network_security_group" "main" {
+  location = "${var.location}"
+  name = "${var.prefix}-${terraform.workspace}"
   resource_group_name = "${data.azurerm_resource_group.main.name}"
 }
 
@@ -25,9 +32,8 @@ resource "random_string" "password" {
 
 resource "azurerm_virtual_machine" "main" {
   location = "${data.azurerm_resource_group.main.location}"
-  name = "${var.prefix}"
-  network_interface_ids = [
-    "${azurerm_network_interface.main.id}"]
+  name = "${var.prefix}-${terraform.workspace}"
+  network_interface_ids = ["${azurerm_network_interface.main.id}"]
   resource_group_name = "${data.azurerm_resource_group.main.name}"
 
   delete_os_disk_on_termination = true
@@ -35,7 +41,7 @@ resource "azurerm_virtual_machine" "main" {
 
   storage_os_disk {
     create_option = "FromImage"
-    name = "${var.prefix}-osdisk"
+    name = "${var.prefix}-${terraform.workspace}"
     caching = "ReadWrite"
     managed_disk_type = "Standard_LRS"
   }
@@ -51,7 +57,7 @@ resource "azurerm_virtual_machine" "main" {
   os_profile {
     computer_name = "${var.prefix}"
     admin_username = "${var.admin_username}"
-    admin_password = "${var.admin_password}"
+    admin_password = "${random_string.password.result}"
   }
 
   os_profile_linux_config {

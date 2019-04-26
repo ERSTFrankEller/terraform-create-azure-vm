@@ -17,13 +17,12 @@ resource "azurerm_network_interface" "main" {
   location = "${data.azurerm_resource_group.main.location}"
   name = "${var.prefix}-${terraform.workspace}"
   resource_group_name = "${data.azurerm_resource_group.main.name}"
-  network_security_group_id = "${azurerm_network_security_group.main.id}"
+  network_security_group_id = "${data.azurerm_network_security_group.main.id}"
 }
 
-resource "azurerm_network_security_group" "main" {
-  location = "${var.location}"
-  name = "${var.prefix}-${terraform.workspace}"
-  resource_group_name = "${data.azurerm_resource_group.main.name}"
+data "azurerm_network_security_group" "main" {
+  name = "${var.azurerm_network_security_group}"
+  resource_group_name = "${var.resource_group_name}"
 }
 
 resource "random_string" "password" {

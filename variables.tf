@@ -33,3 +33,7 @@ variable virtual_network_name {
 variable resource_group {
   default = "TEST_ITS_CoreServerInfrastructure"
 }
+
+variable "azurerm_network_security_group" {
+  default = "TEST_ITS_SUBNET_NSG"
+}
